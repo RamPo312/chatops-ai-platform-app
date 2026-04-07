@@ -9,10 +9,11 @@ app = FastAPI(
     version=settings.app_version
 )
 
+# Simple CORS (Dev Mode)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # later we will restrict this
-    allow_credentials=True,
+    allow_origins=["*"],  # allow all (DEV only)
+    allow_credentials=False,  # IMPORTANT: must be False with "*"
     allow_methods=["*"],
     allow_headers=["*"],
 )
