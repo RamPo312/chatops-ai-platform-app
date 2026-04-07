@@ -13,16 +13,25 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   const sendMessage = async () => {
-    if (!message.trim()) return;
+    console.log("Send button clicked");
+    console.log("Current message:", message);
+
+    if (!message.trim()) {
+      console.log("Message is empty, returning");
+      return;
+    }
 
     const userMessage = message.trim();
+    console.log("Trimmed message:", userMessage);
 
     setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
     setMessage("");
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/chat", {
+      console.log("Calling backend...");
+
+      const response = await fetch("http://18.219.54.136:8000/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -30,16 +39,25 @@ export default function Home() {
         body: JSON.stringify({ message: userMessage }),
       });
 
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
       const data = await response.json();
+      console.log("Response JSON:", data);
 
       setMessages((prev) => [...prev, { sender: "bot", text: data.reply }]);
     } catch (error) {
+      console.error("Fetch error:", error);
       setMessages((prev) => [
         ...prev,
         { sender: "bot", text: "Error: Unable to reach backend." },
       ]);
     } finally {
       setLoading(false);
+      console.log("Request complete");
     }
   };
 
@@ -85,9 +103,15 @@ export default function Home() {
             placeholder="Type your message..."
             className="flex-1 border rounded-lg px-4 py-3 text-gray-900"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) => {
+              console.log("Input changed:", e.target.value);
+              setMessage(e.target.value);
+            }}
             onKeyDown={(e) => {
-              if (e.key === "Enter") sendMessage();
+              if (e.key === "Enter") {
+                console.log("Enter pressed");
+                sendMessage();
+              }
             }}
           />
           <button
