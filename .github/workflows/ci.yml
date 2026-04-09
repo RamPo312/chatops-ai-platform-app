@@ -44,10 +44,12 @@ jobs:
 
       - name: Build frontend Docker image
         run: |
-          docker build -t rampo3/chatops-frontend:latest .
+          docker build \
+            -t rampo3/chatops-frontend:latest \
+            -t rampo3/chatops-frontend:${{ github.sha }} .
 
       - name: Scan frontend image with Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.24.0
         with:
           image-ref: rampo3/chatops-frontend:latest
           format: table
@@ -56,10 +58,11 @@ jobs:
           vuln-type: os,library
           severity: CRITICAL,HIGH
 
-      - name: Push frontend Docker image
+      - name: Push frontend Docker images
         if: github.ref == 'refs/heads/main'
         run: |
           docker push rampo3/chatops-frontend:latest
+          docker push rampo3/chatops-frontend:${{ github.sha }}
 
   backend-build-scan-push:
     name: Backend Build Scan Push
@@ -96,10 +99,12 @@ jobs:
 
       - name: Build backend Docker image
         run: |
-          docker build -t rampo3/chatops-backend:latest .
+          docker build \
+            -t rampo3/chatops-backend:latest \
+            -t rampo3/chatops-backend:${{ github.sha }} .
 
       - name: Scan backend image with Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.24.0
         with:
           image-ref: rampo3/chatops-backend:latest
           format: table
@@ -108,7 +113,8 @@ jobs:
           vuln-type: os,library
           severity: CRITICAL,HIGH
 
-      - name: Push backend Docker image
+      - name: Push backend Docker images
         if: github.ref == 'refs/heads/main'
         run: |
           docker push rampo3/chatops-backend:latest
+          docker push rampo3/chatops-backend:${{ github.sha }}
