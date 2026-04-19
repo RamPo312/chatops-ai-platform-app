@@ -1,58 +1,65 @@
-🚀 ChatOps AI Platform
+# 🚀 ChatOps AI Platform
 
-This is a full-stack chatbot application built using Next.js for the frontend and FastAPI for the backend.
+This is a full-stack chatbot application built using **Next.js (frontend)** and **FastAPI (backend)**.
 
-I worked on this project mainly to understand how things actually work in real DevOps environments — not just building the app, but taking it all the way from local setup to CI/CD, Docker, Kubernetes, and monitoring.
+I built this project mainly to understand how things actually work in real DevOps environments — not just building the app, but taking it all the way from local setup to CI/CD, Docker, Kubernetes, and monitoring.
 
-🧠 What I was trying to do
+---
 
-Initially, I just wanted to build a simple chatbot UI and connect it to a backend.
+## 🧠 What I was trying to do
 
-But while working on it, I extended it step by step to cover:
+Initially, I started with a simple chatbot idea — just build a UI and connect it to a backend.
 
-Containerizing the app
-Automating builds using GitHub Actions
-Adding security scans
-Deploying to Kubernetes (EKS)
-Setting up GitOps using Argo CD
-Adding monitoring and logging
+But while working on it, I extended it step by step:
 
-So it kind of became a full end-to-end DevOps project.
+- Containerizing the application  
+- Automating builds using GitHub Actions  
+- Adding security scans (Trivy + Gitleaks)  
+- Deploying to Kubernetes (EKS)  
+- Setting up GitOps using Argo CD  
+- Adding monitoring and logging  
 
-🏗️ How the app works
+So over time, it became a full end-to-end DevOps project.
 
-Pretty simple flow:
+---
 
-User types something in UI → frontend sends API request → backend processes it → response is shown back in UI
+## 🏗️ How the app works
 
-⚙️ Tech Stack
 
-Frontend
+User → Frontend (Next.js) → Backend (FastAPI) → Response → UI
 
-Next.js
-React
-TypeScript
 
-Backend
+---
 
-FastAPI
-Python
+## ⚙️ Tech Stack
 
-DevOps
+### Frontend
+- Next.js  
+- React  
+- TypeScript  
 
-Docker
-GitHub Actions
-Kubernetes (EKS)
-Argo CD
-Argo Rollouts
+### Backend
+- FastAPI  
+- Python  
 
-Monitoring
+### DevOps & Cloud
+- Docker  
+- GitHub Actions  
+- Kubernetes (EKS)  
+- Argo CD  
+- Argo Rollouts  
 
-Prometheus
-Grafana
-ELK
-CloudWatch
-📁 Project Structure
+### Monitoring & Logging
+- Prometheus  
+- Grafana  
+- ELK Stack  
+- AWS CloudWatch  
+
+---
+
+## 📁 Project Structure
+
+
 chatops-ai-platform/
 │
 ├── frontend/
@@ -60,101 +67,119 @@ chatops-ai-platform/
 ├── docker-compose.yml
 │
 └── .github/workflows/
-    ├── ci.yml
-    └── security.yml
-🐳 What I did with Docker
+├── ci.yml
+└── security.yml
 
-Once the app was working locally, I created Dockerfiles for both frontend and backend.
 
-Used multi-stage builds
-Built separate images
-Pushed them to Docker Hub
+---
 
-Also tested everything locally using:
+## 🐳 Docker Setup
+
+After building the app locally, I containerized both frontend and backend.
+
+- Created separate Docker images  
+- Used multi-stage builds to keep images optimized  
+- Pushed images to Docker Hub  
+
+Run locally:
+
 
 docker compose up --build
-🔁 CI/CD (GitHub Actions)
 
-I created two workflows:
 
-CI Pipeline (ci.yml)
+---
 
-This handles build + scan + push.
+## 🔁 CI/CD Pipeline
 
-For both frontend and backend:
+I set up CI/CD using GitHub Actions with two workflows.
 
-Install dependencies
-Build app
-Build Docker image
-Tag with:
-latest
-commit SHA
-Run Trivy scan
-Push to Docker Hub (only on main branch)
+### CI Pipeline (`ci.yml`)
 
-One thing I handled carefully:
+Handles build, scan, and push for both frontend and backend.
 
-PRs only run build and scan
-Push to main actually pushes images
-Security Pipeline (security.yml)
+- Install dependencies  
+- Build application  
+- Build Docker image  
+- Tag images (`latest` + commit SHA)  
+- Run Trivy scan  
+- Push images (only on `main` branch)  
 
-This is separate.
+### Security Pipeline (`security.yml`)
 
-Runs Gitleaks
-Checks if any secrets are pushed
-Runs on every push and PR
-🔐 Security part
+- Runs Gitleaks  
+- Scans for secrets in the repository  
+- Runs on every push and pull request  
 
-I didn’t want to skip this because in real projects it matters.
+---
 
-Used Trivy for image scanning
-Used Gitleaks for secret detection
+## 🔐 Security
 
-Even if it’s a small project, I wanted to follow that practice.
+Security is part of the pipeline, not something added later.
 
-🚀 Deployment
-First step
+- **Trivy** → scans Docker images for vulnerabilities  
+- **Gitleaks** → detects exposed secrets  
 
-Deployed on EC2 using Docker just to validate everything works end-to-end.
+---
 
-Then moved to Kubernetes
-Created deployments and services
-Used ClusterIP for backend
-Frontend talks using service name
-🔄 GitOps (Argo CD)
+## 🚀 Deployment
 
-Instead of manually deploying:
+### Step 1 — EC2
+Initially deployed using Docker on EC2 to validate everything.
 
-Created a separate GitOps repo
-Stored Kubernetes manifests there
-Argo CD watches the repo
-Any change automatically deploys
+### Step 2 — Kubernetes (EKS)
+Then moved to Kubernetes:
 
-Also used Argo Rollouts for blue/green deployment.
+- Created deployments and services  
+- Backend exposed internally using ClusterIP  
+- Frontend communicates using service name  
 
-📊 Monitoring
+---
 
-I added monitoring mainly to understand how systems behave.
+## 🔄 GitOps (Argo CD)
 
-Prometheus → collects metrics
-Grafana → dashboards
-ELK → logs
-CloudWatch → AWS-level metrics
-⚠️ Issues I faced
+Instead of manual deployments:
 
-This is where I actually learned the most.
+- Kubernetes manifests are stored in a GitOps repository  
+- Argo CD continuously watches for changes  
+- Any update triggers automatic deployment  
 
-Frontend couldn’t hit backend
-→ fixed service name issue
-Docker build failed sometimes
-→ fixed dependencies and Dockerfile
-Env variables not working
-→ fixed using NEXT_PUBLIC_API_BASE_URL
-ALB not creating
-→ issue with IAM role / OIDC
-Services not reachable
-→ fixed ports and service configs
-🧪 Commands I used a lot
+Also used **Argo Rollouts** for blue/green deployments.
+
+---
+
+## 📊 Monitoring & Observability
+
+To simulate a real production setup:
+
+- Prometheus → collects metrics  
+- Grafana → dashboards  
+- ELK → logs  
+- CloudWatch → AWS-level monitoring  
+
+---
+
+## ⚠️ Challenges I faced
+
+- Frontend couldn’t reach backend  
+  → fixed using correct Kubernetes service name  
+
+- Docker builds failed  
+  → fixed dependency issues in Dockerfile  
+
+- Environment variables not working  
+  → fixed using `NEXT_PUBLIC_API_BASE_URL`  
+
+- ALB not getting created  
+  → issue with IAM / OIDC configuration  
+
+- Services not reachable  
+  → fixed service and port configuration  
+
+---
+
+## 🧪 Useful Commands
+
+
 kubectl get pods -A
 kubectl logs <pod-name>
 kubectl describe pod <pod-name>
@@ -162,3 +187,15 @@ kubectl get svc
 kubectl get ingress -A
 
 curl http://<service-ip>:8000/api/chat
+
+
+---
+
+## 🎯 Outcome
+
+- Fully working full-stack application  
+- CI/CD pipeline implemented  
+- Dockerized and Kubernetes-ready  
+- GitOps deployment working  
+- Blue/Green deployment setup  
+- Monitoring and logging integrated  
