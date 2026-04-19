@@ -1,186 +1,164 @@
-# 🚀 ChatOps AI Platform
+🚀 ChatOps AI Platform
 
-A full-stack chatbot application built with **Next.js (Frontend)** and **FastAPI (Backend)**, containerized using Docker and integrated with a complete **DevOps CI/CD pipeline**.
+This is a full-stack chatbot application built using Next.js for the frontend and FastAPI for the backend.
 
----
+I worked on this project mainly to understand how things actually work in real DevOps environments — not just building the app, but taking it all the way from local setup to CI/CD, Docker, Kubernetes, and monitoring.
 
-## 🧠 Project Overview
+🧠 What I was trying to do
 
-This project demonstrates a real-world DevOps workflow including:
+Initially, I just wanted to build a simple chatbot UI and connect it to a backend.
 
-- Full-stack application development
-- Containerization using Docker (multi-stage builds)
-- CI/CD pipeline using GitHub Actions
-- Security scanning (Trivy + Gitleaks)
-- Docker image publishing to Docker Hub
-- Cloud deployment on AWS EC2
+But while working on it, I extended it step by step to cover:
 
----
+Containerizing the app
+Automating builds using GitHub Actions
+Adding security scans
+Deploying to Kubernetes (EKS)
+Setting up GitOps using Argo CD
+Adding monitoring and logging
 
-## 🏗️ Architecture
+So it kind of became a full end-to-end DevOps project.
 
-```
-Browser → Frontend (Next.js) → Backend (FastAPI) → Response
-```
+🏗️ How the app works
 
----
+Pretty simple flow:
 
-## ⚙️ Tech Stack
+User types something in UI → frontend sends API request → backend processes it → response is shown back in UI
 
-### Frontend
-- Next.js
-- React
-- TypeScript
+⚙️ Tech Stack
 
-### Backend
-- FastAPI
-- Python 3.12
+Frontend
 
-### DevOps & Tools
-- Docker (multi-stage builds)
-- Docker Compose
-- GitHub Actions (CI/CD)
-- Trivy (vulnerability scanning)
-- Gitleaks (secret scanning)
-- AWS EC2 (deployment)
+Next.js
+React
+TypeScript
 
----
+Backend
 
-## 📁 Project Structure
+FastAPI
+Python
 
-```
-chatops-ai-platform-app/
+DevOps
+
+Docker
+GitHub Actions
+Kubernetes (EKS)
+Argo CD
+Argo Rollouts
+
+Monitoring
+
+Prometheus
+Grafana
+ELK
+CloudWatch
+📁 Project Structure
+chatops-ai-platform/
 │
-├── frontend/              # Next.js frontend
-│   ├── Dockerfile
-│   └── app/
-│
-├── backend/              # FastAPI backend
-│   ├── Dockerfile
-│   └── app/
-│
+├── frontend/
+├── backend/
 ├── docker-compose.yml
-├── .github/workflows/    # CI/CD pipelines
-│   ├── ci.yml
-│   └── security.yml
-└── README.md
-```
+│
+└── .github/workflows/
+    ├── ci.yml
+    └── security.yml
+🐳 What I did with Docker
 
----
+Once the app was working locally, I created Dockerfiles for both frontend and backend.
 
-## 🐳 Docker Setup
+Used multi-stage builds
+Built separate images
+Pushed them to Docker Hub
 
-### Build and run locally
+Also tested everything locally using:
 
-```bash
 docker compose up --build
-```
+🔁 CI/CD (GitHub Actions)
 
-### Access application
+I created two workflows:
 
-- Frontend: http://localhost:3000
-- Backend: http://localhost:8000/docs
+CI Pipeline (ci.yml)
 
----
+This handles build + scan + push.
 
-## 📦 Docker Images
+For both frontend and backend:
 
-Published to Docker Hub:
+Install dependencies
+Build app
+Build Docker image
+Tag with:
+latest
+commit SHA
+Run Trivy scan
+Push to Docker Hub (only on main branch)
 
-- Frontend: `rampo3/chatops-frontend`
-- Backend: `rampo3/chatops-backend`
+One thing I handled carefully:
 
-Supports:
-- `latest`
-- commit SHA tagging (immutable builds)
+PRs only run build and scan
+Push to main actually pushes images
+Security Pipeline (security.yml)
 
----
+This is separate.
 
-## 🔁 CI/CD Pipeline (GitHub Actions)
+Runs Gitleaks
+Checks if any secrets are pushed
+Runs on every push and PR
+🔐 Security part
 
-Pipeline automatically triggers on:
+I didn’t want to skip this because in real projects it matters.
 
-- Push to `main`
-- Pull requests
+Used Trivy for image scanning
+Used Gitleaks for secret detection
 
-### Pipeline Stages
+Even if it’s a small project, I wanted to follow that practice.
 
-1. Install dependencies  
-2. Build application  
-3. Build Docker images  
-4. Security scanning (Trivy)  
-5. Push images to Docker Hub  
+🚀 Deployment
+First step
 
----
+Deployed on EC2 using Docker just to validate everything works end-to-end.
 
-## 🔐 Security (DevSecOps)
+Then moved to Kubernetes
+Created deployments and services
+Used ClusterIP for backend
+Frontend talks using service name
+🔄 GitOps (Argo CD)
 
-### 🔍 Trivy (Container Scanning)
-- Scans Docker images for vulnerabilities  
-- Checks OS + dependencies  
-- Reports HIGH & CRITICAL issues  
+Instead of manually deploying:
 
-### 🔑 Gitleaks (Secret Detection)
-- Detects hardcoded secrets in repo  
-- Prevents credential leaks  
+Created a separate GitOps repo
+Stored Kubernetes manifests there
+Argo CD watches the repo
+Any change automatically deploys
 
----
+Also used Argo Rollouts for blue/green deployment.
 
-## 🚀 Deployment
+📊 Monitoring
 
-Deployed on AWS EC2:
+I added monitoring mainly to understand how systems behave.
 
-- Docker containers running frontend & backend  
-- Public access via EC2 IP  
+Prometheus → collects metrics
+Grafana → dashboards
+ELK → logs
+CloudWatch → AWS-level metrics
+⚠️ Issues I faced
 
-Example:
-```
-http://<EC2_PUBLIC_IP>:3000
-```
+This is where I actually learned the most.
 
----
+Frontend couldn’t hit backend
+→ fixed service name issue
+Docker build failed sometimes
+→ fixed dependencies and Dockerfile
+Env variables not working
+→ fixed using NEXT_PUBLIC_API_BASE_URL
+ALB not creating
+→ issue with IAM role / OIDC
+Services not reachable
+→ fixed ports and service configs
+🧪 Commands I used a lot
+kubectl get pods -A
+kubectl logs <pod-name>
+kubectl describe pod <pod-name>
+kubectl get svc
+kubectl get ingress -A
 
-## 🧪 API Testing
-
-### Health Check
-
-```bash
-curl http://<IP>:8000/health
-```
-
-### Chat API
-
-```bash
-curl -X POST http://<IP>:8000/api/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message":"hello"}'
-```
-
----
-
-## 💡 Key DevOps Features
-
-- Multi-stage Docker builds  
-- Containerized full-stack app  
-- Automated CI/CD pipeline  
-- Vulnerability scanning integration  
-- Immutable image tagging (SHA-based)  
-- Real cloud deployment experience  
-
----
-
-## 📌 Future Enhancements
-
-- Kubernetes deployment (EKS)  
-- GitOps (ArgoCD)  
-- Ingress controller (ALB)  
-- Blue/Green deployment  
-- Monitoring (Prometheus + Grafana)  
-
----
-
-## 👨‍💻 Author
-
-**Ram (DevOps Engineer)**  
-- AWS | Kubernetes | CI/CD | Cloud Security  
-
+curl http://<service-ip>:8000/api/chat
